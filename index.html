@@ -178,19 +178,31 @@
     }
 
     .arrow-line {
-      stroke-width: 1.5;
+      stroke-width: 1.6;
       fill: none;
-      opacity: 0.25;
-      transition: opacity 0.3s, stroke-width 0.3s;
+      opacity: 0.3;
+      transition: opacity 0.25s, stroke-width 0.25s, stroke-dasharray 0.25s;
     }
 
     .arrow-line.highlighted {
       opacity: 0.9;
-      stroke-width: 2.5;
+      stroke-width: 2.8;
+    }
+
+    .arrow-line.outgoing {
+      opacity: 1;
+      stroke-width: 3.1;
+      stroke-dasharray: none;
+    }
+
+    .arrow-line.incoming {
+      opacity: 0.75;
+      stroke-width: 2.4;
+      stroke-dasharray: 1.5 4;
     }
 
     .arrow-line.dimmed { opacity: 0.06; }
-    .arrowhead { opacity: 0.25; }
+    .arrowhead { opacity: 0.6; }
 
     .chord-node {
       cursor: pointer;
@@ -350,7 +362,7 @@
     </div>
   </div>
 
-  <p class="tip">Based on common diatonic and secondary dominant resolutions</p>
+  <p class="tip">Arrowheads show direction. Based on common diatonic and secondary dominant resolutions.</p>
 
   <script>
     const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
@@ -497,14 +509,14 @@
       ['tonic', 'subdominant', 'dominant', 'minor', 'secondary', 'default'].forEach(type => {
         const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
         marker.setAttribute('id', `arrow-${type}`);
-        marker.setAttribute('viewBox', '0 0 10 7');
-        marker.setAttribute('refX', '10');
-        marker.setAttribute('refY', '3.5');
-        marker.setAttribute('markerWidth', '8');
-        marker.setAttribute('markerHeight', '6');
+        marker.setAttribute('viewBox', '0 0 14 10');
+        marker.setAttribute('refX', '13');
+        marker.setAttribute('refY', '5');
+        marker.setAttribute('markerWidth', '11');
+        marker.setAttribute('markerHeight', '8');
         marker.setAttribute('orient', 'auto-start-reverse');
         const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-        poly.setAttribute('points', '0 0, 10 3.5, 0 7');
+        poly.setAttribute('points', '0 0, 14 5, 0 10');
         poly.setAttribute('fill', TYPE_COLORS[type] || '#888');
         poly.setAttribute('class', 'arrowhead');
         marker.appendChild(poly);
@@ -635,15 +647,19 @@
       document.querySelectorAll('.arrow-line').forEach(line => {
         const from = line.getAttribute('data-from');
         const to = line.getAttribute('data-to');
-        const isRelated = from === chordId || to === chordId;
+        const isOutgoing = from === chordId;
+        const isIncoming = to === chordId;
+        const isRelated = isOutgoing || isIncoming;
         line.classList.toggle('highlighted', isRelated);
+        line.classList.toggle('outgoing', isOutgoing);
+        line.classList.toggle('incoming', isIncoming);
         line.classList.toggle('dimmed', !isRelated);
       });
     }
 
     function clearHighlight() {
       document.querySelectorAll('.chord-node').forEach(n => n.classList.remove('dimmed', 'active'));
-      document.querySelectorAll('.arrow-line').forEach(l => l.classList.remove('highlighted', 'dimmed'));
+      document.querySelectorAll('.arrow-line').forEach(l => l.classList.remove('highlighted', 'dimmed', 'outgoing', 'incoming'));
     }
 
     function selectChord(chordId) {
